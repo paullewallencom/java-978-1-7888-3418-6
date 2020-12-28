@@ -1,0 +1,130 @@
+package com.packt.j11intro.slackbot;
+
+import com.ullink.slack.simpleslackapi.SlackUser;
+
+import java.util.*;
+
+public class VotingAssistant extends BaseSlackAssistant {
+    // Map to store the votes.
+    private Map<String, Integer> votes = new HashMap<>();
+
+    @Override
+    public String cancel() {
+        return "Voting has been cancelled, too bad. The result was: \n" + formatResult();
+    }
+
+    @Override
+    public String conclude() {
+        return "Voting has been concluded. The result is: \n" + formatResult();
+    }
+
+    private String formatResult() {
+        final StringBuilder sb = new StringBuilder();
+
+        // Use the stream API to format the voting results.
+        votes.entrySet().stream()
+                .map(e -> new VoteResult(e.getKey(), slackSession.findUserById(e.getKey()).getRealName(), e.getValue()))
+                .sorted(Comparator.comparing(VoteResult::getRealName))
+                .map(vr -> vr.getRealName() + " voted [" + vr.getVote() + "]")
+                .forEach(vr -> sb.append(vr).append("\n"));
+
+        // Tally the votes.
+        int up = 0;
+        int down = 0;
+        int abstain = 0;
+
+        int voters = 0;
+        int total = 0;
+
+        for (Iterator<Integer> iterator = votes.values().iterator(); iterator.hasNext(); ) {
+            Integer vote = iterator.next();
+            if (vote == 1) {
+                up++;
+            } else if (vote == 0) {
+                abstain++;
+            } else if (vote == -1) {
+                down++;
+            }
+
+            total += vote;
+            voters++;
+        }
+
+        sb.append("Up Votes: " + up + "\n");
+        sb.append("Abstain Votes: " + abstain + "\n");
+        sb.append("Down Votes: " + down + "\n");
+        sb.append("Voters: " + voters + "\n");
+        sb.append("Total Votes: " + total + "\n");
+
+        return sb.toString();
+    }
+
+    @Override
+    public String getName() {
+        return "Voting Assistant";
+    }
+
+    @Override
+    boolean handleNonLifecycleInstruction(String instruction, SlackUser user) {
+        boolean isVoted = votes.containsKey(user.getId());
+
+        Integer vote = null;
+        if ("1".equals(instruction) || "+1".equals(instruction)) {
+            vote = 1;
+        } else if ("0".equals(instruction)) {
+            vote = 0;
+        } else if ("-1".equals(instruction)) {
+            vote = -1;
+        } else {
+            issueWarning("Please issue only +1, 0, or -1 for agree/abstain/disagree.", user);
+            return true;
+        }
+
+        votes.put(user.getId(), vote);
+
+        if (isVoted) {
+            issueAnnouncement("Logging updated vote by " + user.getRealName() + ", with a vote of " + vote + ".");
+        } else {
+            issueAnnouncement("Vote by " + user.getRealName() + ", with a vote of " + vote + ".");
+        }
+
+        return true;
+    }
+}
+
+class VoteResult {
+    private String id;
+    private String realName;
+    private Integer vote;
+
+    public VoteResult(String id, String realName, Integer vote) {
+        this.id = id;
+        this.realName = realName;
+        this.vote = vote;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        VoteResult that = (VoteResult) o;
+        return Objects.equals(id, that.id);
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getRealName() {
+        return realName;
+    }
+
+    public Integer getVote() {
+        return vote;
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+}

@@ -1,0 +1,10 @@
+Java Development Kit (JDK) 11 is just around the corner. The first release candidate has arrived, and the final release candidate is due on August 30, 2018. The production version is due September 25, 2018, as part of Oracle’s new six-month release schedule for the standard edition of Java, Version 11 will have 15 major feature changes.
+
+Java 11 is also set to lose some capabilities through the removal of CORBA and Java EE (recently renamed Jakarta EE) modules, as well as the removal of JavaFX.
+[ The new Java versions are here! Learn everything you need to know about what’s new in Java SE 10 and what’s new in Java EE 8. | Keep up with hot topics in programming with InfoWorld’s App Dev Report newsletter. ]
+
+Set to be a long-term support release unlike JDK 10, JDK 11 will be a reference implementation of Java Platform, Standard Edition (Java SE) 11. JDK 11 is set to receive premier-level support from Oracle until September 2023 and extended support, featuring patches and security alerts, until 2026. New LTS releases are due every three years, with JDK 17, due in 2021, slated to be the subsequent LTS release.
+
+With the Java 11 feature plans now final, Oracle has forked the mainline repository, jdk/jdk, to the jdk/jdk11 stabilization repository. Changes pushed to jdk/jdk or jdk/client are now marked for JDK 12. The stabilization repository can accept select bug fixes and, if approved, late enhancements as per the JDK Release Process.
+
+From https://www.infoworld.com/article/3265447/java/java-jdk-11-the-new-features-coming-soon.html
